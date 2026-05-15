@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="ProxyHunter — Sistema avançado de busca, validação e criação de proxies locais HTTP e SOCKS5." />
+  <title>ProxyHunter — Proxy Scanner & Creator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+
+<body>
+
+  <!-- ── Header ─────────────────────────────────────────────────── -->
+  <header>
+    <div class="logo-icon">🔍</div>
+    <div>
+      <h1>PROXYHUNTER</h1>
+      <div class="tagline">Sistema Avançado de Busca &amp; Validação de Proxies</div>
+    </div>
+  </header>
+
+  <!-- ── Tabs ───────────────────────────────────────────────────── -->
+  <nav class="tabs" role="tablist" aria-label="Seções do ProxyHunter">
+    <button class="tab-btn active" data-tab="scan" onclick="switchTab('scan')" role="tab">SCAN DE PROXIES</button>
+    <button class="tab-btn" data-tab="create" onclick="switchTab('create')" role="tab">CRIAR PROXY LOCAL</button>
+  </nav>
+
+  <!-- ============================================================ -->
+  <!-- TAB: SCAN DE PROXIES                                         -->
+  <!-- ============================================================ -->
+  <section id="tab-scan" class="tab-content active" role="tabpanel">
+    <div class="main">
+
+      <!-- Sidebar de Controle -->
+      <div class="panel">
+        <div class="panel-header">⚙ Controle do Scanner</div>
+        <div class="panel-body">
+
+          <div class="stat-grid">
+            <div class="stat-box">
+              <div id="statTotal" class="num total">0</div>
+              <div class="lbl">TOTAL</div>
+            </div>
+            <div class="stat-box">
+              <div id="statAlive" class="num alive">0</div>
+              <div class="lbl">VIVAS</div>
+            </div>
+            <div class="stat-box">
+              <div id="statDead" class="num dead">0</div>
+              <div class="lbl">MORTAS</div>
+            </div>
+            <div class="stat-box">
+              <div id="statSpeed" class="num speed">—</div>
+              <div class="lbl">AVG MS</div>
+            </div>
+          </div>
+
+          <div class="progress-wrap">
+            <div class="progress-label"><span>Progresso</span><span id="progressPct">0%</span></div>
+            <div class="progress-bar">
+              <div id="progressFill" class="progress-fill"></div>
+            </div>
+          </div>
+
+          <button id="btnFetch" class="btn btn-success" onclick="startScan()">
+            ▶ INICIAR SCAN <span class="spinner"></span>
+          </button>
+          <button id="btnStop" class="btn btn-danger" onclick="stopScan()" disabled>■ PARAR</button>
+          <button class="btn btn-primary" onclick="clearResults()">✕ LIMPAR</button>
+
+          <div class="filter-group">
+            <div class="filter-label">Filtrar por tipo</div>
+            <div class="filter-pills">
+              <span class="pill active" onclick="toggleFilter('ALL',   this)">TODOS</span>
+              <span class="pill" onclick="toggleFilter('HTTP',   this)">HTTP</span>
+              <span class="pill" onclick="toggleFilter('HTTPS',  this)">HTTPS</span>
+              <span class="pill" onclick="toggleFilter('SOCKS4', this)">SOCKS4</span>
+              <span class="pill" onclick="toggleFilter('SOCKS5', this)">SOCKS5</span>
+            </div>
+          </div>
+
+          <div class="filter-group" style="margin-top:.8rem;">
+            <div class="filter-label">Mostrar</div>
+            <div class="filter-pills">
+              <span class="pill active" onclick="toggleStatus('ALL',   this)">TODAS</span>
+              <span class="pill" onclick="toggleStatus('alive', this)">SÓ VIVAS</span>
+            </div>
+          </div>
+
+          <div id="logArea" class="log-area" aria-live="polite">
+            <div class="log-hl">&gt; ProxyHunter pronto. Clique em INICIAR SCAN.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Painel Direito: Tabela + Export -->
+      <div class="right-panel">
+        <div class="table-wrap">
+          <div class="table-toolbar">
+            <span class="toolbar-title">📡 PROXIES ENCONTRADAS</span>
+            <input id="searchInput" class="search-input" placeholder="Filtrar IP:porta…"
+              oninput="scheduleRenderTable()" />
+          </div>
+          <div class="table-container">
+            <table id="proxyTable" aria-label="Proxies encontradas">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>HOST : PORTA</th>
+                  <th>TIPO</th>
+                  <th>STATUS</th>
+                  <th>LATÊNCIA</th>
+                  <th>IP EXTERNO</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="tableBody">
+                <tr>
+                  <td colspan="7">
+                    <div class="empty-state">
+                      <div class="icon">📡</div>
+                      <div>Nenhuma proxy testada. Clique em <strong>INICIAR SCAN</strong>.</div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="export-bar">
+          <span id="exportCount">0 proxies vivas disponíveis para exportar</span>
+          <button class="export-btn" onclick="exportTXT()">⬇ TXT</button>
+          <button class="export-btn" onclick="exportJSON()">⬇ JSON</button>
+          <button class="export-btn" onclick="exportCSV()">⬇ CSV</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- TAB: CRIAR PROXY LOCAL                                       -->
+  <!-- ============================================================ -->
+  <section id="tab-create" class="tab-content" role="tabpanel">
+    <div class="main">
+
+      <!-- Sidebar de Criação -->
+      <div class="panel">
+        <div class="panel-header">⚙ NOVA INSTÂNCIA DE PROXY</div>
+        <div class="panel-body">
+
+          <div class="filter-group" style="margin-top:0;">
+            <label class="filter-label" for="localProxyType">Tipo de Proxy</label>
+            <select id="localProxyType" class="input-dark">
+              <option value="http">HTTP / HTTPS Tunnel</option>
+              <option value="socks5">SOCKS V5 Puro</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label" for="localProxyPort">Porta Local</label>
+            <input id="localProxyPort" type="number" value="8080" min="1" max="65535" class="input-dark" />
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">Autenticação (Opcional)</label>
+            <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;">
+              <input id="localProxyAuth" type="checkbox" onchange="toggleAuthFields()"
+                style="accent-color:var(--accent);width:15px;height:15px;" />
+              <span style="font-size:.75rem;">Proteger com Usuário/Senha</span>
+            </div>
+            <div id="authFields" style="display:none;flex-direction:column;gap:.5rem;">
+              <input id="localProxyUser" type="text" placeholder="Usuário" class="input-dark" />
+              <input id="localProxyPass" type="password" placeholder="Senha" class="input-dark" />
+            </div>
+          </div>
+
+          <div style="margin-top:1.8rem;">
+            <button id="btnStartProxy" class="btn btn-primary" onclick="startLocalProxy()">
+              ▶ INSTANCIAR <span class="spinner"></span>
+            </button>
+          </div>
+
+          <!-- Lista de instâncias ativas -->
+          <div style="margin-top:2rem;border-top:1px solid var(--border);padding-top:1rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+              <div style="font-family:var(--font-hd);font-size:.6rem;color:var(--accent);letter-spacing:2px;">
+                🟢 INSTÂNCIAS ATIVAS
+              </div>
+              <button class="btn btn-primary btn-small" onclick="exportAllProxies()">COPIAR TODOS</button>
+            </div>
+            <div id="activeProxiesList" style="display:flex;flex-direction:column;">
+              <div class="empty-state" style="padding:1rem;font-size:.65rem;">Nenhuma proxy local ativa.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Painel Direito: Status + Instruções + Logs -->
+      <div class="right-panel">
+
+        <div class="panel">
+          <div class="panel-header">📊 STATUS DA INSTÂNCIA SELECIONADA</div>
+          <div class="panel-body" style="display:flex;gap:1rem;padding:1.5rem;">
+            <div class="stat-box" style="flex:1">
+              <div id="lProxyStatus" class="num total" style="color:var(--text-dim);">NENHUM</div>
+              <div class="lbl">PORTA</div>
+            </div>
+            <div class="stat-box" style="flex:1">
+              <div id="lProxyIP" class="num" style="color:var(--accent);">—</div>
+              <div class="lbl">IP LAN (HOST)</div>
+            </div>
+            <div class="stat-box" style="flex:1">
+              <div id="lProxyCount" class="num" style="color:var(--accent2);">0</div>
+              <div class="lbl">REQUISIÇÕES</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">📖 INSTRUÇÕES DE USO</div>
+          <div id="howToUsePanel" class="panel-body" style="font-size:.75rem;line-height:1.6;color:var(--text-dim);">
+            <p>Inicie e selecione uma instância de proxy na esquerda para ver as instruções de conexão.</p>
+          </div>
+        </div>
+
+        <div class="panel" style="flex:1;display:flex;flex-direction:column;">
+          <div class="panel-header">📝 LOGS EM TEMPO REAL</div>
+          <div id="localProxyLogs" class="log-area" style="flex:1;min-height:200px;margin:0 1.2rem 1.2rem;height:auto;"
+            aria-live="polite">
+            <div class="log-info">&gt; Selecione uma instância ativa para visualizar logs.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Scripts ─────────────────────────────────────────────────── -->
+  <script type="module">
+    import * as scanner from '/static/js/main.js';
+    import * as pm from '/static/js/proxy_manager.js';
+
+    // Expõe funções referenciadas via onclick= no HTML (necessário com modules)
+    Object.assign(window, {
+      switchTab: scanner.switchTab,
+      startScan: scanner.startScan,
+      stopScan: scanner.stopScan,
+      clearResults: scanner.clearResults,
+      toggleFilter: scanner.toggleFilter,
+      toggleStatus: scanner.toggleStatus,
+      copyProxy: scanner.copyProxy,
+      scheduleRenderTable: scanner.scheduleRenderTable ?? (() => { }),
+      exportTXT: scanner.exportTXT,
+      exportJSON: scanner.exportJSON,
+      exportCSV: scanner.exportCSV,
+
+      toggleAuthFields: pm.toggleAuthFields,
+      startLocalProxy: pm.startLocalProxy,
+      exportAllProxies: pm.exportAllProxies,
+
+      // Expõe o módulo inteiro para onclick dinâmico nos cards gerados por JS
+      proxyManager: pm,
+    });
+
+    // Inicializa o proxy manager (polling, listener de tipo)
+    pm.init();
+  </script>
+
+</body>
+
+</html>
