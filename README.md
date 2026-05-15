@@ -1,14 +1,18 @@
 # ProxyHunter 🔍
 
+🗣️ *[Read in English](#english-version)* | 🇧🇷 *[Ler em Português](#versão-em-português)*
+
+---
+
+## 🇧🇷 Versão em Português
+
 > **Sistema avançado de busca, validação e criação de proxies — sem dependências pesadas.**
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python)
 ![Flask](https://img.shields.io/badge/Flask-3.x-lightgrey?logo=flask)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
----
-
-## ✨ Funcionalidades
+### ✨ Funcionalidades
 
 | Feature | Detalhes |
 |---|---|
@@ -19,11 +23,9 @@
 | **Logs em tempo real** | SSE por instância — visualize o tráfego à medida que acontece |
 | **Exportação** | TXT / JSON / CSV + formato BOT (`IP:PORTA:USER:PASS`) |
 
----
+### 🗂 Estrutura do Projeto
 
-## 🗂 Estrutura do Projeto
-
-```
+```text
 proxy_system/
 ├── app.py           # Entry point — Flask factory
 ├── routes.py        # Todos os endpoints REST e SSE (Blueprint)
@@ -39,64 +41,78 @@ proxy_system/
 │   └── js/
 │       ├── main.js            # Scanner UI + SSE + Exportação
 │       └── proxy_manager.js   # Gerenciador de proxies locais
-│
-├── requirements.txt
-└── .gitignore
 ```
 
----
-
-## 🚀 Instalação e Uso
+### 🚀 Instalação e Uso
 
 ```bash
-# 1. Clone o repositório
-git clone https://github.com/seu-usuario/proxyhunter.git
-cd proxyhunter
+# Clone o repositório
+git clone https://github.com/JulioAndrade07-art/hunter-proxy-manager.git
+cd hunter-proxy-manager
 
-# 2. Crie um ambiente virtual (recomendado)
-python -m venv venv
-source venv/bin/activate   # Linux/macOS
-venv\Scripts\activate      # Windows
-
-# 3. Instale as dependências
+# Instale os requisitos
 pip install -r requirements.txt
 
-# 4. Execute
+# Inicie o servidor
 python app.py
 ```
-
 Acesse: **http://localhost:5000**
 
 ---
 
-## 🔌 Uso como Proxy Local
+<br><br>
 
-### HTTP / HTTPS
+## 🇺🇸 English Version
+
+> **Advanced scanning, validation, and proxy creation system — lightweight and dependency-free.**
+
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python)
+![Flask](https://img.shields.io/badge/Flask-3.x-lightgrey?logo=flask)
+![License](https://img.shields.io/badge/license-MIT-green)
+
+### ✨ Features
+
+| Feature | Details |
+|---|---|
+| **Parallel Scan** | Scrapes proxies from 6 sources concurrently and tests via 40 threads using SSE |
+| **HTTP/HTTPS Proxy** | Local server featuring CONNECT tunneling (HTTPS) & Basic Auth |
+| **SOCKS5 Proxy** | Custom asyncio server with RFC 1929 Auth & graceful shutdown |
+| **Multi-instance** | Launch as many local proxies as you want on independent ports |
+| **Real-time Logs** | SSE-powered realtime traffic visualization per instance |
+| **Mass Export** | TXT / JSON / CSV + Antidetect BOT format (`IP:PORT:USER:PASS`) |
+
+### 🚀 Installation & Usage
+
 ```bash
-curl -x http://SEU_IP:8080 http://httpbin.org/ip
+# Clone the repository
+git clone https://github.com/JulioAndrade07-art/hunter-proxy-manager.git
+cd hunter-proxy-manager
+
+# Intall the requirements
+pip install -r requirements.txt
+
+# Start the server
+python app.py
+```
+Open: **http://localhost:5000**
+
+### 🔌 Using as a Local Proxy
+
+**HTTP / HTTPS**
+```bash
+curl -x http://YOUR_LAN_IP:8080 http://httpbin.org/ip
 ```
 
-### SOCKS5
+**SOCKS5**
 ```bash
-curl -x socks5://SEU_IP:1080 http://httpbin.org/ip
+curl -x socks5://YOUR_LAN_IP:1080 http://httpbin.org/ip
 ```
 
-### Com autenticação
+**With Authentication**
 ```bash
-curl -x http://usuario:senha@SEU_IP:8080 http://httpbin.org/ip
+curl -x http://user:pass@YOUR_LAN_IP:8080 http://httpbin.org/ip
 ```
 
 ---
-
-## 🛠 Requisitos
-
-- Python **3.10+**
-- `flask >= 3.0`
-- `requests >= 2.32`
-- Tudo o mais é **biblioteca padrão do Python** (asyncio, threading, socket, http.server…)
-
----
-
-## 📄 Licença
-
+### 📄 License
 MIT © 2025
